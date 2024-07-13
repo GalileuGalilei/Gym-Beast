@@ -1,24 +1,60 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEditorInternal;
 using UnityEngine;
 
-public class CharacterController : MonoBehaviour
+public partial class CharacterController : MonoBehaviour
 {
-    private Vector2 walkDirection;
-    [SerializeField] private float walkSpeed = 5f;
+    protected Vector2 walkDirection;
+    protected Animator animator;
+    protected Rigidbody rb;
+    protected CharacterState state;
+    [SerializeField] protected float walkSpeed = 5f;
+    [SerializeField] protected float rotationSpeed = 5f;
 
-
-    // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
-
-        
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        EnableRagdoll(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    protected void EnableRagdoll(bool state)
     {
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        foreach (Collider col in colliders)
+        {
+            col.enabled = state;
+        }
+
+        Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
+        foreach (Rigidbody rb in rigidbodies)
+        {
+            rb.isKinematic = !state;
+        }
+    }
+
+    protected void Move(Vector2 direction)
+    {
+        walkDirection = direction;
+        rb.velocity = transform.forward * walkSpeed;
+        //add angular velocity until the character is facing the direction of movement
+        if (direction != Vector2.zero)
+        {
+            float targetAngle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationSpeed, 0.1f);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+        }
+
         
+
+    }
+
+    protected void SetState(CharacterState state)
+    {
+        animator.SetInteger("State", (int)state);
+        this.state = state;
     }
 }
