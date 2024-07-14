@@ -38,23 +38,32 @@ public partial class CharacterController : MonoBehaviour
 
     protected void Move(Vector2 direction)
     {
-        walkDirection = direction;
-        rb.velocity = transform.forward * walkSpeed;
-        //add angular velocity until the character is facing the direction of movement
-        if (direction != Vector2.zero)
+        if (direction == Vector2.zero)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationSpeed, 0.1f);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
+            return;
         }
 
+        walkDirection = direction;
         
-
+        float targetAngle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationSpeed, 0.1f);
+        rb.rotation = Quaternion.Euler(0, angle, 0);
+        rb.position += transform.forward * walkSpeed * Time.deltaTime;
     }
 
     protected void SetState(CharacterState state)
     {
         animator.SetInteger("State", (int)state);
         this.state = state;
+
+        switch (state)
+        {
+            case CharacterState.Attack:
+                animator.SetLayerWeight(1, 1);
+                break;  
+            default:
+                animator.SetLayerWeight(1, 0);
+                break;
+        }
     }
 }
