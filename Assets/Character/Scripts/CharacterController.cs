@@ -5,33 +5,49 @@ using System.Runtime.CompilerServices;
 using UnityEditorInternal;
 using UnityEngine;
 
-public partial class CharacterController : MonoBehaviour
+public abstract class CharacterController : MonoBehaviour
 {
     protected Vector2 walkDirection;
     protected Animator animator;
-    protected Rigidbody rb;
+    protected Collider col;
     protected CharacterState state;
-    [SerializeField] protected float walkSpeed = 5f;
-    [SerializeField] protected float rotationSpeed = 5f;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float rotationSpeed = 5f;
 
-    protected void Start()
+    public float WalkSpeed { get => walkSpeed; }
+    public float RotationSpeed { get => rotationSpeed; }
+    public Rigidbody Rb { get; private set; }
+
+    protected virtual void Start()
     {
         animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
+        Rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
         EnableRagdoll(false);
     }
 
     protected void EnableRagdoll(bool state)
     {
+        animator.enabled = !state;
+
         Collider[] colliders = GetComponentsInChildren<Collider>();
         foreach (Collider col in colliders)
         {
+            if (col == this.col)
+            {
+                continue;
+            }
+
             col.enabled = state;
         }
 
         Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
         foreach (Rigidbody rb in rigidbodies)
         {
+            if (rb == this.Rb)
+            {
+                continue;
+            }
             rb.isKinematic = !state;
         }
     }
@@ -47,23 +63,18 @@ public partial class CharacterController : MonoBehaviour
         
         float targetAngle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationSpeed, 0.1f);
-        rb.rotation = Quaternion.Euler(0, angle, 0);
-        rb.position += transform.forward * walkSpeed * Time.deltaTime;
+        Rb.rotation = Quaternion.Euler(0, angle, 0);
+        Rb.position += transform.forward * walkSpeed * Time.deltaTime;
     }
 
-    protected void SetState(CharacterState state)
+    public void SetUpperBodyAnimationWeight(float weight)
+    {
+        animator.SetLayerWeight(1, weight);
+    }
+
+    public void SetState(CharacterState state)
     {
         animator.SetInteger("State", (int)state);
         this.state = state;
-
-        switch (state)
-        {
-            case CharacterState.Attack:
-                animator.SetLayerWeight(1, 1);
-                break;  
-            default:
-                animator.SetLayerWeight(1, 0);
-                break;
-        }
     }
 }

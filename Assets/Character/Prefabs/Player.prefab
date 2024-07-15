@@ -63,6 +63,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4689501564747102498, guid: 031dff86464224d408c7f9620e50fd1d,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 33e7ac526f959494583fb131936edcf8, type: 2}
+    - target: {fileID: 5851725755489595973, guid: 031dff86464224d408c7f9620e50fd1d,
+        type: 3}
+      propertyPath: m_Mass
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851725755489595973, guid: 031dff86464224d408c7f9620e50fd1d,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -103,6 +118,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 5
+  rotationSpeed: 5
+  punchDistance: 1
+  punchForce: 5
+  botStack: []
 --- !u!114 &-3862055690630899300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +164,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 52f0e22a-a570-4a2b-a14b-dfbf2efd5adc
     m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0fde098e-89de-4827-ae37-b2734df46c88
+    m_ActionName: Player/Attack
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8888012071657022148}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 20128c7f-fc63-459e-86ad-dcd44a4dc1ae
+    m_ActionName: Player/Interact
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
