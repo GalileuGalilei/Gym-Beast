@@ -166,7 +166,7 @@ PrefabInstance:
     - target: {fileID: 3559970233353477055, guid: 031dff86464224d408c7f9620e50fd1d,
         type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
-      value: 64
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3965668966356282782, guid: 031dff86464224d408c7f9620e50fd1d,
         type: 3}
@@ -247,6 +247,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851725755489595973, guid: 031dff86464224d408c7f9620e50fd1d,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6446503706215328700, guid: 031dff86464224d408c7f9620e50fd1d,
         type: 3}
@@ -414,10 +419,10 @@ MonoBehaviour:
   walkSpeed: 5
   rotationSpeed: 5
   restTime: 6
-  Spine: {fileID: 9046430911219086674}
---- !u!1 &9046430911219086674 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5234972406281029854, guid: 031dff86464224d408c7f9620e50fd1d,
+  Spine: {fileID: 4203922496071317954}
+--- !u!54 &4203922496071317954 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 1115325274986333262, guid: 031dff86464224d408c7f9620e50fd1d,
     type: 3}
   m_PrefabInstance: {fileID: 3831784077192199564}
   m_PrefabAsset: {fileID: 0}

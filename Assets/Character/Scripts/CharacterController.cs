@@ -29,6 +29,7 @@ public abstract class CharacterController : MonoBehaviour
     protected void EnableRagdoll(bool state)
     {
         animator.enabled = !state;
+        return;
 
         Collider[] colliders = GetComponentsInChildren<Collider>();
         foreach (Collider col in colliders)

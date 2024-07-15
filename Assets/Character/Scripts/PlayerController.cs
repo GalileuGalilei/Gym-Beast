@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.LowLevelPhysics;
 using static UnityEngine.InputSystem.InputAction;
 
 public class PlayerController : CharacterController
@@ -11,15 +12,21 @@ public class PlayerController : CharacterController
     [SerializeField] float punchDistance = 10.0f;
     [SerializeField] float punchForce = 5.0f;
     [SerializeField] float elasticConstant = 0.5f;
-    const float offset = 3.0f;
+    [SerializeField] float offset = 1.0f;
+    [SerializeField] PlayerInteract playerInteract;
 
     public List<BotController> botStack = new();
     private List<Vector3> botStackIntertia = new();
 
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
         Move(walkDirection);
         SimulateStackPhysics();
+    }
+
+    public void Update()
+    {
+        //SimulateStackPhysics();
     }
 
     private void Punch()
@@ -27,15 +34,13 @@ public class PlayerController : CharacterController
         RaycastHit hit;
         animator.Play("Punching", 1);
         animator.SetLayerWeight(1, 1);
-        if (Physics.Raycast(transform.position, transform.forward, out hit, punchDistance))
-        {
-            if (hit.collider.CompareTag("Bot"))
-            {
-                Debug.Log("Punching");
-                hit.collider.GetComponent<BotController>().TakePunch();
-                hit.collider.GetComponent<Rigidbody>().AddForce(transform.forward * punchForce, ForceMode.Impulse);
-            }
-        }   
+        
+
+        Debug.Log("Punching");
+        BotController bot = playerInteract.botInRange.FirstOrDefault();
+        bot.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * punchForce, ForceMode.Impulse);
+        bot.TakePunch();
+
     }
 
     private void StackBot()
@@ -52,8 +57,9 @@ public class PlayerController : CharacterController
                     Debug.Log("Stacking");
                     botStack.Add(bot);
                     botStackIntertia.Append(bot.GetComponent<Rigidbody>().velocity);
-                    botStackIntertia.Add(bot.GetComponent<Rigidbody>().velocity);
-                    bot.transform.position = transform.position + Vector3.up * offset;
+                    bot.GetComponent<Rigidbody>().isKinematic = true;
+                    bot.Spine.isKinematic = true;
+                    bot.transform.position = transform.position + Vector3.up * offset * botStack.Count;
                 }
             }
         }
@@ -71,15 +77,19 @@ public class PlayerController : CharacterController
 
     private void SimulateStackPhysics()
     {
+        Bounds playerBounds = col.bounds;
+        Vector3 previusTarget = transform.position + playerBounds.size.y * Vector3.up;
         foreach (BotController bot in botStack)
         {
-            Vector3 target = transform.position + Vector3.up * offset;
-            bot.Spine.transform.position = new Vector3(bot.Spine.transform.position.x, target.y, bot.Spine.transform.position.z);
+            Vector3 target = previusTarget + Vector3.up * offset;
+            bot.Spine.position = new Vector3(bot.Spine.transform.position.x, target.y, bot.Spine.transform.position.z);
+            bot.Spine.transform.forward = Vector3.down;
 
             // Apply elastic force in xz plane
             Vector3 force = elasticConstant * (target - bot.Spine.transform.position);
             force.y = 0;
-            bot.Spine.transform.position += force * elasticConstant;
+            bot.Spine.position += force * elasticConstant;
+            previusTarget = bot.Spine.position;
         }
     }
 

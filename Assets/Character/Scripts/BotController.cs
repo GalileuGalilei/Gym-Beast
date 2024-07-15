@@ -10,7 +10,7 @@ public class BotController : CharacterController
 
     public IBotBehavior CurrentBehavior { get; private set; }
     public bool Alive { get; private set; } = true;
-    public GameObject Spine;
+    public Rigidbody Spine;
     
 
     protected override void Start()
