@@ -11,7 +11,7 @@ public class PlayerController : CharacterController
     [SerializeField] float punchDistance = 10.0f;
     [SerializeField] float punchForce = 5.0f;
     [SerializeField] float elasticConstant = 0.5f;
-    const float offset = 4.0f;
+    const float offset = 3.0f;
 
     public List<BotController> botStack = new();
     private List<Vector3> botStackIntertia = new();
@@ -74,12 +74,12 @@ public class PlayerController : CharacterController
         foreach (BotController bot in botStack)
         {
             Vector3 target = transform.position + Vector3.up * offset;
-            Vector3 dir = target - bot.transform.position;
-            Vector3 force = elasticConstant * dir;
-            bot.Spine.transform.position += force * Time.deltaTime;
+            bot.Spine.transform.position = new Vector3(bot.Spine.transform.position.x, target.y, bot.Spine.transform.position.z);
 
-
-
+            // Apply elastic force in xz plane
+            Vector3 force = elasticConstant * (target - bot.Spine.transform.position);
+            force.y = 0;
+            bot.Spine.transform.position += force * elasticConstant;
         }
     }
 
