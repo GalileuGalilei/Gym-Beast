@@ -1,4 +1,4 @@
-## House Beats
+## House Beasts
 
 House Beats é um jogo de personagens ragdoll onde o objetivo é jogar os inimigos pela porta vermelha para ganhar dinheiro. O jogo foi desenvolvido como parte de um teste técnico.
 
