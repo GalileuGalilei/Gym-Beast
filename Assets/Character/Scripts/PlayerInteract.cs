@@ -1,28 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {
-    private Collider col;
-    [SerializeField] float highlightPower = 1.5f;
+    [SerializeField] Material highlightMaterial;
+    [SerializeField] Material originalMaterial;
     public List<BotController> botInRange = new();
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        col = GetComponent<Collider>();
-    }
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Bot"))
         {
-            botInRange.Add(other.gameObject.GetComponent<BotController>());
+            BotController bot = other.GetComponent<BotController>();
+            botInRange.Add(bot.GetComponent<BotController>());
             //highlight the bot
             Renderer r = other.gameObject.GetComponentInChildren<Renderer>();
-            r.material.color *= highlightPower;
+            r.material = highlightMaterial;
         }
     }
 
@@ -30,10 +23,17 @@ public class PlayerInteract : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Bot"))
         {
-            botInRange.Remove(other.gameObject.GetComponent<BotController>());
+            BotController bot = other.GetComponent<BotController>();
+
+            if (!botInRange.Contains(bot))
+            {
+                return;
+            }
+
+            botInRange.Remove(bot);
             //unhighlight the bot
             Renderer r = other.gameObject.GetComponentInChildren<Renderer>();
-            r.material.color /= highlightPower;
+            r.material = originalMaterial;
         }
     }
 }

@@ -66,7 +66,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 294a438c2b0b85b44bf8f2f78759b818, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightPower: 1.5
+  highlightMaterial: {fileID: 2100000, guid: 0caeb981287ee734ab4be90fe7317f32, type: 2}
+  originalMaterial: {fileID: 2100000, guid: 6da4dcc31acf44947b38f99a85e905f8, type: 2}
   botInRange: []
 --- !u!1001 &7032892492664107466
 PrefabInstance:
@@ -191,7 +192,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   rotationSpeed: 5
-  punchDistance: 1
   punchForce: 5
   elasticConstant: 0.5
   offset: 1
@@ -259,6 +259,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 20128c7f-fc63-459e-86ad-dcd44a4dc1ae
     m_ActionName: Player/Interact
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8888012071657022148}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnThrow
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 95f66895-c43c-40b8-b1c0-28b1afdea916
+    m_ActionName: Player/Throw
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

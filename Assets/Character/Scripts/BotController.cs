@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -36,5 +34,7 @@ public class BotController : CharacterController
         agent.enabled = false;
         CurrentBehavior = null;
         Alive = false;
+        col.enabled = false;
+        Rb.isKinematic = true;
     }
 }

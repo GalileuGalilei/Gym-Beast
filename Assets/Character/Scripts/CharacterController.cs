@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditorInternal;
 using UnityEngine;
 
 public abstract class CharacterController : MonoBehaviour
@@ -14,8 +9,16 @@ public abstract class CharacterController : MonoBehaviour
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float rotationSpeed = 5f;
 
-    public float WalkSpeed { get => walkSpeed; }
-    public float RotationSpeed { get => rotationSpeed; }
+    public float WalkSpeed
+    {
+        get => walkSpeed; set => walkSpeed = value;
+    }
+    
+    public float RotationSpeed 
+    { 
+        get => rotationSpeed; set => rotationSpeed = value; 
+    }
+    
     public Rigidbody Rb { get; private set; }
 
     protected virtual void Start()
@@ -29,7 +32,6 @@ public abstract class CharacterController : MonoBehaviour
     protected void EnableRagdoll(bool state)
     {
         animator.enabled = !state;
-        return;
 
         Collider[] colliders = GetComponentsInChildren<Collider>();
         foreach (Collider col in colliders)

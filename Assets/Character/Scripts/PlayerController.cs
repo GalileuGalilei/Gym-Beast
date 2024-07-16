@@ -5,18 +5,24 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.LowLevelPhysics;
+using UnityEngine.Rendering;
 using static UnityEngine.InputSystem.InputAction;
 
 public class PlayerController : CharacterController
 {
-    [SerializeField] float punchDistance = 10.0f;
     [SerializeField] float punchForce = 5.0f;
     [SerializeField] float elasticConstant = 0.5f;
     [SerializeField] float offset = 1.0f;
     [SerializeField] PlayerInteract playerInteract;
 
     public List<BotController> botStack = new();
-    private List<Vector3> botStackIntertia = new();
+    private int stackLimit = 1;
+
+    protected override void Start()
+    {
+        base.Start();
+        playerInteract.GetComponent<Collider>().enabled = true;
+    }
 
     public void FixedUpdate()
     {
@@ -24,55 +30,58 @@ public class PlayerController : CharacterController
         SimulateStackPhysics();
     }
 
-    public void Update()
-    {
-        //SimulateStackPhysics();
-    }
-
     private void Punch()
     {
-        RaycastHit hit;
+        //animation
         animator.Play("Punching", 1);
         animator.SetLayerWeight(1, 1);
         
-
+        //ragdoll
         Debug.Log("Punching");
-        BotController bot = playerInteract.botInRange.FirstOrDefault();
-        bot.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * punchForce, ForceMode.Impulse);
-        bot.TakePunch();
-
-    }
-
-    private void StackBot()
-    {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 2.0f);
-        foreach (Collider col in colliders)
+        foreach (BotController bot in playerInteract.botInRange)
         {
-            if (col.CompareTag("Bot"))
-            {   
-                Transform parent = GetLastParent(col.transform);
-                BotController bot = parent.GetComponent<BotController>();
-                if (!botStack.Contains(bot))
-                {
-                    Debug.Log("Stacking");
-                    botStack.Add(bot);
-                    botStackIntertia.Append(bot.GetComponent<Rigidbody>().velocity);
-                    bot.GetComponent<Rigidbody>().isKinematic = true;
-                    bot.Spine.isKinematic = true;
-                    bot.transform.position = transform.position + Vector3.up * offset * botStack.Count;
-                }
+            if (bot.Alive)
+            {
+                bot.TakePunch();
+                bot.Spine.GetComponent<Rigidbody>().AddForce(transform.forward * punchForce, ForceMode.Impulse);
+                playerInteract.botInRange.Remove(bot);
+                return;
             }
         }
     }
 
-    private Transform GetLastParent(Transform transform)
+    private void ThrowBotFromStack()
     {
-        if (transform.parent == null)
-        {
-            return transform;
-        }
+        animator.Play("Throw", 0);
 
-        return GetLastParent(transform.parent);
+        if (botStack.Count > 0)
+        {
+            BotController bot = botStack.Last();
+            bot.Spine.isKinematic = false;
+            botStack.Remove(bot);
+            bot.Spine.AddForce(transform.forward * punchForce, ForceMode.Impulse);
+        }
+    }
+
+    public void StackBot()
+    {
+        BotController bot = FindClosestBot(2.0f);
+
+        if (bot != null && !botStack.Contains(bot) && !bot.Alive)
+        {
+            if (botStack.Count >= stackLimit)
+            {
+                return;
+            }
+
+            Debug.Log("Stacking");
+            Bounds playerBounds = col.bounds;
+            bot.transform.position = transform.position + playerBounds.size.y * Vector3.up;
+            bot.Spine.isKinematic = true;
+
+            botStack.Add(bot);
+        }
+        
     }
 
     private void SimulateStackPhysics()
@@ -93,13 +102,73 @@ public class PlayerController : CharacterController
         }
     }
 
+    private BotController FindClosestBot(float maxDist)
+    {
+        BotController[] allBots = FindObjectsByType<BotController>(FindObjectsSortMode.None);
+        BotController closestBot = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (BotController bot in allBots)
+        {
+            if (botStack.Contains(bot))
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(transform.position, bot.Spine.transform.position);
+            if (distance < closestDistance && distance < maxDist)
+            {
+                closestDistance = distance;
+                closestBot = bot;
+            }
+        }
+
+        return closestBot;
+    }
+
+    #region Upgrades
+
+    public void UpdatePunchForce(float punchForce)
+    {
+        this.punchForce *= punchForce;
+    }
+
+    public void UpdateStackLimit(int stackLimit)
+    {
+        this.stackLimit += stackLimit;
+    }
+
+    public void UpdateSpeed(float speed)
+    {
+        this.WalkSpeed *= speed;
+    }
+
+    public void ChangePlayerColor()
+    { 
+        Material playerMaterial = GetComponentInChildren<SkinnedMeshRenderer>().material;
+        playerMaterial.mainTextureScale = new Vector2(Random.Range(0.1f, 2.0f), Random.Range(0.1f, 2.0f));
+    }
+
+    #endregion Upgrades
+
     #region input
+
+    public void OnThrow(CallbackContext value)
+    {
+        if (value.phase == InputActionPhase.Started)
+        {
+            ThrowBotFromStack();
+            animator.Play("Throw");
+            return;
+        }
+    }
+
     public void OnInteract(CallbackContext value)
     {
         if (value.phase == InputActionPhase.Started)
         {
             SetState(CharacterState.Interact);
-            StackBot();
+            animator.Play("Picking Up");
             return;
         }
     }
